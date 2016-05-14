@@ -18,13 +18,13 @@ type Event struct {
 // AdapterFactory specifies a constructor for BrokerAdapter factories.
 type AdapterFactory interface {
 	// New builds a BrokerAdapter, which should be a client of a broker listening on the given
-	// address.
-	New(address string) (BrokerAdapter, error)
+	// address, and should return a func to cleanup the connections opened.
+	New(address string) (BrokerAdapter, func(), error)
 }
 
 // RegistryAdapter specifies the contract a broker adapter (kafka, rabbit) should follow.
 type BrokerAdapter interface {
-	Start() error
+	Listen(queue string, messages chan []byte) error
 	Publish(message, topic string) error
 }
 

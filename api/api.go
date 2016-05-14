@@ -7,12 +7,15 @@ import (
 	"github.com/gorilla/mux"
 )
 
-func Listen(port int) error {
+var responsesCh chan http.ResponseWriter
+
+func Listen(port int, responses chan http.ResponseWriter) error {
+	responsesCh = responses
 	r := mux.NewRouter()
 	r.Path("/api/ping").Methods(http.MethodPost).HandlerFunc(pingsHandler)
 	return http.ListenAndServe(":"+strconv.Itoa(port), r)
 }
 
-func pingsHandler(w http.ResponseWriter, r *http.Request) {
-	// Publish on the broker.
+func pingsHandler(w http.ResponseWriter, _ *http.Request) {
+	responsesCh <- w
 }
