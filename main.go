@@ -4,7 +4,6 @@ import (
 	"flag"
 	"fmt"
 	"log"
-	"net/http"
 	"os"
 
 	"github.com/castillobg/ping/api"
@@ -37,9 +36,9 @@ func main() {
 		os.Exit(1)
 	}
 
-	responses := make(chan http.ResponseWriter)
-	core.Listen(broker, messages, responses)
+	listeners := make(chan chan []byte)
+	core.Listen(broker, messages, listeners)
 
 	log.Printf("ping is running on port: %d\n", *port)
-	api.Listen(*port, responses)
+	api.Listen(*port, listeners)
 }

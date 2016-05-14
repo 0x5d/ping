@@ -1,39 +1,38 @@
 package core
 
 import (
-	"net/http"
 	"sync"
 
 	"github.com/castillobg/ping/brokers"
 )
 
-var pendingResponses = make([]http.ResponseWriter, 0)
-var pendingResponsesLock = new(sync.Mutex)
+var waitingForPong = make([]chan []byte, 0)
+var pongListenersLock = new(sync.Mutex)
 
-func Listen(broker brokers.BrokerAdapter, pongs chan []byte, responses chan http.ResponseWriter) {
+func Listen(broker brokers.BrokerAdapter, pongs chan []byte, pongListeners chan chan []byte) {
 	go func() {
 		// Listens for pong events
 		for pong := range pongs {
 			// If a pong arrives, writes to the oldest response and removes it from pendingResponses.
-			pendingResponsesLock.Lock()
-			pendingResLength := len(pendingResponses)
-			if pendingResLength > 0 {
-				pendingResponses[pendingResLength-1].Write(pong)
-				pendingResponses = pendingResponses[:pendingResLength-1]
+			pongListenersLock.Lock()
+			listenersLength := len(waitingForPong)
+			if listenersLength > 0 {
+				waitingForPong[listenersLength-1] <- pong
+				waitingForPong = waitingForPong[:listenersLength-1]
 			}
-			pendingResponsesLock.Unlock()
+			pongListenersLock.Unlock()
 		}
 	}()
 
 	// Listens for new api call events.
 	go func() {
-		for response := range responses {
+		for listener := range pongListeners {
 			// If there's a new api call (ping), append the ResponseWriter to pendingResponses, and
 			// publish a ping to the broker.
-			pendingResponsesLock.Lock()
-			pendingResponses = append(pendingResponses, response)
+			pongListenersLock.Lock()
+			waitingForPong = append(waitingForPong, listener)
 			broker.Publish("ping", "pings")
-			pendingResponsesLock.Unlock()
+			pongListenersLock.Unlock()
 		}
 	}()
 }

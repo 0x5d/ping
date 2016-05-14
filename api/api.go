@@ -1,21 +1,25 @@
 package api
 
 import (
+	"fmt"
 	"net/http"
 	"strconv"
-
-	"github.com/gorilla/mux"
 )
 
-var responsesCh chan http.ResponseWriter
+var listenersCh chan chan []byte
 
-func Listen(port int, responses chan http.ResponseWriter) error {
-	responsesCh = responses
-	r := mux.NewRouter()
-	r.Path("/api/ping").Methods(http.MethodPost).HandlerFunc(pingsHandler)
-	return http.ListenAndServe(":"+strconv.Itoa(port), r)
+func Listen(port int, listeners chan chan []byte) error {
+	listenersCh = listeners
+	http.HandleFunc("/api/pings", pingsHandler)
+	return http.ListenAndServe(":"+strconv.Itoa(port), nil)
 }
 
-func pingsHandler(w http.ResponseWriter, _ *http.Request) {
-	responsesCh <- w
+func pingsHandler(w http.ResponseWriter, r *http.Request) {
+	message := make(chan []byte)
+	if r.Method != http.MethodPost {
+		w.WriteHeader(404)
+		return
+	}
+	listenersCh <- message
+	w.Write([]byte(fmt.Sprintf("%s\n", <-message)))
 }
