@@ -1,14 +1,13 @@
 # Ping
 
-A simple async ping pong app built for my Component-Based Software Development course, using Golang
-and Kafka on Docker.
+2/2 of a simple async ping pong app built for my Component-Based Software Development course, using Golang and RabbitMQ.
 
 ## Run it
 
-- Make sure [Golang](https://golang.org/dl/) and
-[Docker](https://docs.docker.com/engine/installation/) are properly installed.
+- If you haven't already, head over to the [pong](https://github.com/castillobg/pong) repo, read the
+readme, and get everything running. Then, come back.
 
-- Run the [RabbitMQ container](https://hub.docker.com/_/rabbitmq/).
+- Welcome back!
 
 - Clone this repo.
 
@@ -23,4 +22,16 @@ and Kafka on Docker.
   go build
   ```
 
-- Run `ping`.
+- Run ping:
+  ```
+  ./ping -port 8081 -broker rabbit -address localhost:5672
+  ```
+  or just simply
+  ```
+  ./ping -port 8081
+  ```
+
+- You can then send a POST request to localhost:8080/api/pings and wait for a `pong`.
+  ```
+  curl -X POST localhost:8080/api/pings
+  ```
