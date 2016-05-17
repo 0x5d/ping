@@ -1,6 +1,7 @@
 # Ping
 
-2/2 of a simple async ping pong app built for my Component-Based Software Development course, using Golang and RabbitMQ.
+2/2 of a simple async ping pong app built for my Component-Based Software Development course, using
+Golang and RabbitMQ.
 
 ## Run it
 
@@ -33,5 +34,5 @@ readme, and get everything running. Then, come back.
 
 - You can then send a POST request to localhost:8080/api/pings and wait for a `pong`.
   ```
-  curl -X POST localhost:8080/api/pings
+  curl -X POST localhost:8081/api/pings
   ```

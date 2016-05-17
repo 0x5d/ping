@@ -4,12 +4,6 @@ import "errors"
 
 var registeredFactories = make(map[string]AdapterFactory)
 
-var eventSubsribers = make(map[string][]EventSubscriber)
-
-type EventSubscriber interface {
-	OnEvent(e Event)
-}
-
 type Event struct {
 	Type string
 	Body interface{}
@@ -26,14 +20,6 @@ type AdapterFactory interface {
 type BrokerAdapter interface {
 	Listen(queue string, messages chan []byte) error
 	Publish(message, topic string) error
-}
-
-func AddSubscriber(eventName string, subscriber EventSubscriber) {
-	eventSubsribers[eventName] = append(eventSubsribers[eventName], subscriber)
-}
-
-func SubscribersFor(eventName string) []EventSubscriber {
-	return eventSubsribers[eventName]
 }
 
 // Register registers an AdapterFactory for use.

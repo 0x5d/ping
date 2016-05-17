@@ -13,10 +13,16 @@ import (
 )
 
 func main() {
+	help := flag.Bool("h", false, "Prints this help message.")
 	brokerAddr := flag.String("address", "localhost:5672", "The broker's address.")
 	brokerName := flag.String("broker", "rabbit", "The broker to be used. Currently supported: rabbit.")
 	port := flag.Int("port", 8080, "The port where the api will listen.")
 	flag.Parse()
+
+	if *help {
+		flag.PrintDefaults()
+		os.Exit(0)
+	}
 
 	brokerFactory, ok := brokers.LookUp(*brokerName)
 	if !ok {
