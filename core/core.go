@@ -17,8 +17,8 @@ func Listen(broker brokers.BrokerAdapter, pongs chan []byte, pongListeners chan 
 			pongListenersLock.Lock()
 			listenersLength := len(waitingForPong)
 			if listenersLength > 0 {
-				waitingForPong[listenersLength-1] <- pong
-				waitingForPong = waitingForPong[:listenersLength-1]
+				waitingForPong[0] <- pong
+				waitingForPong = waitingForPong[1:listenersLength]
 			}
 			pongListenersLock.Unlock()
 		}

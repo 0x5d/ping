@@ -19,7 +19,7 @@ type AdapterFactory interface {
 // RegistryAdapter specifies the contract a broker adapter (kafka, rabbit) should follow.
 type BrokerAdapter interface {
 	Listen(queue string, messages chan []byte) error
-	Publish(message, topic string) error
+	Publish(message, queue string) error
 }
 
 // Register registers an AdapterFactory for use.
